@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pumping Lemma Visualization</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="noise"></div>
+
+  <div class="container">
+
+    <!-- ── HEADER ── -->
+    <header class="header">
+      <div class="header-top">
+        <span class="chip">Theory of Computation</span>
+        <span class="chip chip-outline">Non-Regular Language Proof</span>
+      </div>
+      <h1>Pumping Lemma <br/><em>Visualization</em></h1>
+      <p class="tagline">
+        An interactive proof that <code>L = &#123; ww | w ∈ &#123;a,b&#125;* &#125;</code> is <strong>not regular</strong>
+      </p>
+    </header>
+
+    <!-- ── LANGUAGE + STRING INFO ── -->
+    <div class="row-2col">
+      <div class="card info-card">
+        <div class="card-label">Language Definition</div>
+        <div class="formula">L = &#123; ww &#125;</div>
+        <p class="card-desc">
+          Strings formed by concatenating any word <em>w</em> over {a, b} with itself.<br/>
+          e.g. <code>aa</code>, <code>abab</code>, <code>baabaa</code>
+        </p>
+      </div>
+      <div class="card info-card">
+        <div class="card-label">Selected Example</div>
+        <div class="formula gold" id="activeString">abab</div>
+        <p class="card-desc">
+          w = <code id="wLabel">ab</code> &nbsp;→&nbsp; ww = <code id="wwLabel">abab</code><br/>
+          |s| = <span id="lenLabel">4</span>, pumping length p = 4
+        </p>
+      </div>
+    </div>
+
+    <!-- ── DECOMPOSITION DISPLAY ── -->
+    <div class="card decomp-card">
+      <div class="card-label">String Decomposition &nbsp;<span class="mono">s = xyz</span></div>
+      <div class="seg-track" id="segTrack">
+        <div class="seg seg-x" id="segX">
+          <div class="seg-inner">
+            <span class="seg-chars" id="xChars">a</span>
+            <span class="seg-tag">x</span>
+          </div>
+        </div>
+        <div class="seg seg-y" id="segY">
+          <div class="seg-inner">
+            <span class="seg-chars" id="yChars">b</span>
+            <span class="seg-tag">y</span>
+          </div>
+        </div>
+        <div class="seg seg-z" id="segZ">
+          <div class="seg-inner">
+            <span class="seg-chars" id="zChars">ab</span>
+            <span class="seg-tag">z</span>
+          </div>
+        </div>
+      </div>
+      <div class="seg-legend">
+        <span><i class="dot dx"></i> x = "<span id="xVal">a</span>" (prefix, non-pumped)</span>
+        <span><i class="dot dy"></i> y = "<span id="yVal">b</span>" (pumped portion, |y| ≥ 1)</span>
+        <span><i class="dot dz"></i> z = "<span id="zVal">ab</span>" (suffix, non-pumped)</span>
+      </div>
+    </div>
+
+    <!-- ── CONTROLS ── -->
+    <div class="controls-row">
+      <button class="btn btn-blue"  id="btnDecomp">Show Decomposition</button>
+      <button class="btn btn-red"   id="btnPump2">Pump &nbsp;i = 2</button>
+      <button class="btn btn-red"   id="btnPump3">Pump &nbsp;i = 3</button>
+    </div>
+
+    <!-- ── STEP RESULT ── -->
+    <div class="card result-card hidden" id="resultCard">
+      <div class="result-header">
+        <div class="card-label" id="resultTitle">Result</div>
+        <div class="validity-pill" id="validityPill"></div>
+      </div>
+
+      <div class="steps-list" id="stepsList"></div>
+
+      <div class="final-string-wrap">
+        <span class="fs-label">Final string:</span>
+        <div class="final-string" id="finalString"></div>
+      </div>
+    </div>
+
+    <!-- ── CUSTOM INPUT ── -->
+    <div class="card custom-card">
+      <div class="card-label">Custom String Tester</div>
+      <p class="card-desc">Enter a string using only <code>a</code> and <code>b</code> to test and simulate.</p>
+      <div class="input-row">
+        <input type="text" id="customInput" placeholder='e.g. "baab" or "abab"' maxlength="20" spellcheck="false"/>
+        <button class="btn btn-blue" id="btnTest">Test String</button>
+      </div>
+      <div class="input-feedback hidden" id="inputFeedback"></div>
+    </div>
+
+    <!-- ── CONDITIONS BOX ── -->
+    <div class="card conditions-card">
+      <div class="card-label">Pumping Lemma Conditions</div>
+      <ul class="conditions-list" id="condList">
+        <li class="cond" id="cond1">
+          <span class="cond-num">1</span>
+          <span>s = xyz &nbsp;(string decomposes into three parts)</span>
+          <span class="cond-status" id="s1">—</span>
+        </li>
+        <li class="cond" id="cond2">
+          <span class="cond-num">2</span>
+          <span>|xy| ≤ p &nbsp;(first two parts fit within pumping length)</span>
+          <span class="cond-status" id="s2">—</span>
+        </li>
+        <li class="cond" id="cond3">
+          <span class="cond-num">3</span>
+          <span>|y| &gt; 0 &nbsp;(pumped portion is non-empty)</span>
+          <span class="cond-status" id="s3">—</span>
+        </li>
+        <li class="cond cond-highlight" id="cond4">
+          <span class="cond-num">4</span>
+          <span>xy<sup>i</sup>z ∈ L &nbsp;for all i ≥ 0 &nbsp;(pumped string stays in language)</span>
+          <span class="cond-status" id="s4">—</span>
+        </li>
+      </ul>
+      <div class="cond-verdict hidden" id="condVerdict">
+        ❌ Condition 4 <strong>fails</strong> after pumping — the string leaves L.
+      </div>
+    </div>
+
+    <!-- ── EXPLANATION ── -->
+    <div class="card explain-card">
+      <div class="card-label">Why L is Not Regular</div>
+      <div class="proof-steps">
+        <div class="ps">
+          <div class="ps-num">1</div>
+          <div class="ps-body"><strong>Assume L is regular.</strong> Then by the Pumping Lemma, ∃ pumping length <em>p</em> such that every s ∈ L with |s| ≥ p can be decomposed as s = xyz.</div>
+        </div>
+        <div class="ps">
+          <div class="ps-num">2</div>
+          <div class="ps-body"><strong>Choose s = "abab".</strong> Clearly s ∈ L (w = "ab") and |s| = 4 ≥ p. By the Lemma, s = xyz with |xy| ≤ p and |y| ≥ 1.</div>
+        </div>
+        <div class="ps">
+          <div class="ps-num">3</div>
+          <div class="ps-body"><strong>Pumping breaks the structure.</strong> Since |xy| ≤ p, both x and y lie within the first half "ab". Pumping y inserts extra characters that destroy the ww pattern.</div>
+        </div>
+        <div class="ps">
+          <div class="ps-num">4</div>
+          <div class="ps-body"><strong>Contradiction.</strong> For i = 2: xy²z = "abbab" ∉ L. For i = 3: xy³z = "abbbab" ∉ L. Pumping always produces a string <em>not</em> in L, violating condition 4. ∎</div>
+        </div>
+        <div class="ps conclusion">
+          <div class="ps-num">∴</div>
+          <div class="ps-body"><strong>Conclusion:</strong> L = &#123; ww | w ∈ &#123;a,b&#125;* &#125; is <span class="accent-red">NOT a regular language</span>.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /container -->
+
+  <script src="script.js"></script>
+</body>
+</html>
